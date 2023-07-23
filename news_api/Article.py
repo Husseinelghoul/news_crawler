@@ -44,8 +44,7 @@ class Article:
             url (str): The URL of the article.
         """
         hash_object = hashlib.sha1(url.encode("utf-8"))
-        id = int(hash_object.hexdigest(), 16)
-        self.id = id
+        self.id = int(hash_object.hexdigest(), 16)
         self.headline = headline
         self.url = url
 

@@ -1,8 +1,9 @@
 """
 VoxArticleScraper - A class for scraping and parsing article content from Vox.
 """
+from __future__ import annotations
+
 import re
-from typing import List, Union
 
 import requests
 from bs4 import BeautifulSoup
@@ -23,17 +24,17 @@ class VoxArticleScraper:
 
     Attributes:
         base_url (str): The base URL of the Vox news website.
-        articles_list (List[Article]): A list to store scraped Article objects.
+        articles_list (list[Article]): A list to store scraped Article objects.
 
     Methods:
         __init__(self) -> None:
             Initializes the VoxArticleScraper with the default base_url and sets up the HTTP adapter.
 
-        get_articles(self) -> List[Article]:
+        get_articles(self) -> list[Article]:
             Scrapes the Vox website for article headlines and URLs, and populates the articles_list.
             Returns the list of Article objects.
 
-        populate_articles(self) -> List[Article]:
+        populate_articles(self) -> list[Article]:
             Populates additional attributes of Article objects by scraping individual article pages.
             Returns the updated articles_list.
 
@@ -50,7 +51,7 @@ class VoxArticleScraper:
     """
 
     base_url: str = BASE_URL
-    articles_list: List[Article] = []
+    articles_list: list[Article] = []
 
     def __init__(self) -> None:
         """
@@ -63,17 +64,17 @@ class VoxArticleScraper:
         http = requests.Session()
         http.mount("https://", adapter)
 
-    def get_articles(self) -> List[Article]:
+    def get_articles(self) -> list[Article]:
         """
         Scrapes the Vox website for article headlines and URLs, and populates the articles_list.
         Returns the list of Article objects.
 
         Returns:
-            List[Article]: The list of Article objects representing the scraped articles.
+            list[Article]: The list of Article objects representing the scraped articles.
         """
         for i in range(1, 2):  # TODO: This is supposed to be 15
             url = self.base_url + ("" if i == 1 else str(i))
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)
             soup = BeautifulSoup(response.content, "html.parser")
             entries = soup.find_all("div", class_="c-compact-river__entry")
             for entry in entries:
@@ -85,19 +86,19 @@ class VoxArticleScraper:
         logger.debug("articles list len = %i", len(self.articles_list))
         return self.articles_list
 
-    def populate_articles(self) -> List[Article]:
+    def populate_articles(self) -> list[Article]:
         """
         Populates additional attributes of Article objects by scraping individual article pages.
         Returns the updated articles_list.
 
         Returns:
-            List[Article]: The list of Article objects with additional attributes populated.
+            list[Article]: The list of Article objects with additional attributes populated.
         """
         logger.info("populating articles objects")
         for article in self.articles_list:
             logger.debug("getting article '%s'", article.headline)
             logger.debug("requesting url %s", article.url)
-            response = requests.get(article.url)
+            response = requests.get(article.url, timeout=10)
             soup = BeautifulSoup(response.content, "html.parser")
             article.label = self.__get_label(soup.find("div", class_="c-entry-group-labels"))
             article.title = soup.find("h1", class_="c-page-title").text
@@ -122,7 +123,7 @@ class VoxArticleScraper:
         """
         return " ".join(label.text.replace("\n", " ").replace("Filed under: ", "").split())
 
-    def __get_author_bio(self, about_the_author: Tag, article: Article) -> Union[str, None]:
+    def __get_author_bio(self, about_the_author: Tag, article: Article) -> str | None:
         """
         Helper method to extract and clean the author's biography from the HTML soup.
 
@@ -135,9 +136,8 @@ class VoxArticleScraper:
         """
         if about_the_author:
             return " ".join(about_the_author.text.replace("\n", " ").split())
-        else:
-            logger.debug("no author bio found for article '%s', url:%s", article.headline, article.url)
-            return None
+        logger.debug("no author bio found for article '%s', url:%s", article.headline, article.url)
+        return None
 
     def __get_article_body(self, article_body: Tag) -> str:
         """
