@@ -1,0 +1,21 @@
+# isort
+[tool.isort]
+profile = "black"
+
+# flake8
+[tool.flake8]
+ignore = ['W503', 'E701']
+max-line-length = 120
+count = true
+
+# mypy
+[tool.mypy]
+python_version = 3.9
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+# black
+[tool.black]
+line-length = 120
+
