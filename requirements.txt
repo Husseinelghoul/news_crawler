@@ -1,7 +1,13 @@
+# general
+python-dotenv==1.0.0
+
+# scraping
 beautifulsoup4==4.12.2
 bs4==0.0.1
 requests==2.31.0
-python-dotenv==1.0.0
+
+# mongodb
+pymongo==4.4.1
 
 # linting and typing
 black==23.7.0
