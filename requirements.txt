@@ -9,6 +9,9 @@ requests==2.31.0
 # mongodb
 pymongo==4.4.1
 
+# flas
+Flask==2.3.2
+
 # linting and typing
 black==23.7.0
 mypy==1.4.1

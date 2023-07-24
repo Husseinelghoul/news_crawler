@@ -34,6 +34,7 @@ class MongoClient:
     Methods:
         __init__: The constructor for the MongoClient class.
         insert_articles: The function that stores articles in the database.
+        search_articles: The function that searches for articles by keyword.
 
     """
 
@@ -78,3 +79,27 @@ class MongoClient:
                 self.collection.insert_one(article.__dict__)
             else:
                 logger.debug("article id %s already present", article.id)
+
+    def search_articles(self, keyword: str) -> list[dict]:
+        """
+        The function that searches for articles by keyword.
+
+        Args:
+            keyword: The keyword to search for.
+
+        Returns:
+            list[dict]: The list of articles that match the keyword as dicts.
+
+        """
+
+        # Query the articles from the database
+        logger.info("Querying for articles with keyword %s", keyword)
+        search_query = {"headline": {"$regex": keyword, "$options": "i"}}
+        # Store the result in a list
+        results = list(self.collection.find(search_query))
+        logger.debug("Found %i articles with keyword %s", len(results), keyword)
+        # Remove MongoDB id
+        for result in results:
+            del result["_id"]
+        # Return the list of articles as dicts
+        return results
